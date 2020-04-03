@@ -2,38 +2,76 @@ import 'package:flutter/material.dart';
 // import 'package:flutter_svg/svg.dart';
 
 import 'package:provider/provider.dart';
-import 'package:slideshow/models/slider_model.dart';
+
 
 class Slideshow extends StatelessWidget {
 
 final List<Widget> slides;
-
+final bool puntosArriba;
+final Color colorPrimario;
+final Color colorSecundario;
+// final double bulletPrimario;
+// final double bulletSecundario;
 Slideshow({
-  @required this.slides
+  @required this.slides,
+  this.puntosArriba     = false,
+  this.colorPrimario    = Colors.blue,
+  this.colorSecundario  = Colors.grey,
+  // this.bulletPrimario   = 12.0,
+  // this.bulletSecundario = 12.0,
 });
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => new SliderModel(),
-       child:  Center(
-          child: Column(
-            children: <Widget>[
-             Expanded(
-                child: _Slides(this.slides),
-                ),
-              _Dots(this.slides.length),
+      create: (_) => new _SlideshowModel(),
+       child:  SafeArea(
+                child: Center(
+            child: Builder(builder: (BuildContext context) {
 
-            ],
+              Provider.of<_SlideshowModel>(context).colorPrimario     = this.colorPrimario;
+              Provider.of<_SlideshowModel>(context).colorSecundario   = this.colorSecundario;
+              // Provider.of<_SlideshowModel>(context).bulletPrimario    = this.bulletPrimario;
+              // Provider.of<_SlideshowModel>(context).bulletSecundario  = this.bulletSecundario;
+
+              return _CrearEstructuraSlideshow(puntosArriba: puntosArriba, slides: slides);
+            },),
           ),
-        ),
+       ),
       );
+  }
+}
+
+class _CrearEstructuraSlideshow extends StatelessWidget {
+  const _CrearEstructuraSlideshow({
+    Key key,
+    @required this.puntosArriba,
+    @required this.slides,
+  }) : super(key: key);
+
+  final bool puntosArriba;
+  final List<Widget> slides;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: <Widget>[
+        if (this.puntosArriba) 
+         _Dots(this.slides.length),              
+       Expanded(
+          child: _Slides(this.slides),
+          ),                
+        if (!this.puntosArriba) 
+         _Dots(this.slides.length),
+      ],
+    );
   }
 }
 
 class _Dots extends StatelessWidget {
 
   final int totalSlides;
+ 
 
   _Dots(this.totalSlides);
 
@@ -53,23 +91,27 @@ class _Dots extends StatelessWidget {
 
 class _Dot extends StatelessWidget {
   final int index ;
+  
 
   
 _Dot (this.index);
 
   @override
   Widget build(BuildContext context) {
+final ssModel = Provider.of<_SlideshowModel>(context);
 
-final pageViewIndex = Provider.of<SliderModel>(context).currentPage;
+// final tamano = (ssModel.currentPage == index ) 
+//                ? ssModel.bulletPrimario :ssModel.bulletSecundario;
 
     return AnimatedContainer(
       duration: Duration(microseconds: 200),
       margin: EdgeInsets.symmetric(horizontal: 5),
+      //TODO: Tarea 
       width: 12,
       height: 12,
       decoration: BoxDecoration(
-        color: (pageViewIndex >= index - 0.5 && pageViewIndex < index + 0.5)
-         ? Colors.blue : Colors.grey,
+        color: (ssModel.currentPage >= index - 0.5 && ssModel.currentPage < index + 0.5)
+         ? ssModel.colorPrimario : ssModel.colorSecundario,
         shape: BoxShape.circle,
       ),
     );
@@ -93,7 +135,7 @@ class __SlidesState extends State<_Slides> {
 void initState() { 
   super.initState();
   pageViewController.addListener((){
-    Provider.of<SliderModel>(context, listen: false).currentPage = pageViewController.page;
+    Provider.of<_SlideshowModel>(context, listen: false).currentPage = pageViewController.page;
   });
 }
 
@@ -130,4 +172,47 @@ _Slide(this.slide);
      child: slide,
     );
   }
+}
+
+class _SlideshowModel with ChangeNotifier{
+
+  double _currentPage = 0;
+  Color _colorPrimario = Colors.blue;
+  Color _colorSecundario = Colors.grey;
+  double _bulletPrimario = 12.0;
+  double _bulletSecundario = 12.0;
+
+
+  double get currentPage => this._currentPage;
+
+  set currentPage  (double pagina) {
+    this._currentPage = pagina;
+    notifyListeners();
+  }
+  
+  Color get colorPrimario => this._colorPrimario;
+  set colorPrimario (Color color){
+    this._colorPrimario = color;
+    notifyListeners();
+  }
+  Color get colorSecundario => this._colorSecundario;
+  set colorSecundario (Color color){
+    this._colorSecundario = color;
+    notifyListeners();
+  }
+
+  // double get bulletPrimario => this._bulletPrimario;
+  // set bulletPrimario (double tamano) {
+  //   this.bulletPrimario = tamano;
+  //   notifyListeners();
+  // }
+
+  // double get bulletSecundario => this._bulletSecundario;
+  // set bulletSecundario (double tamano) {
+  //   this._bulletSecundario = tamano;
+  //   notifyListeners();
+  // }
+
+  
+
 }
