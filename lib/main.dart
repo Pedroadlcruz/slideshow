@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:slideshow/pages/slideshow_page.dart';
+import 'package:slideshow/pages/slideshow_page1.dart';
+
+
  
 void main() => runApp(MyApp());
  
@@ -9,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Material App',
-      home: SlideShowPage(),
+      home: SlideshowPage1(),
     );
   }
 }
